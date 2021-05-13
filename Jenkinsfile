@@ -1,22 +1,21 @@
 pipeline {
-    agent {
-        docker { image 'node:latest' } 
-    }
-    
-	
+    agent any
+
     stages {
         stage('Build') {
             steps {
-                echo 'Building..'
-		sh 'npm install'
-		sh 'npm run build'
-            }
-        }
-        stage('Test') {
-            steps {
-                echo 'Testing..'
-		sh 'npm test'
-            }
+              sh 'curl -sL https://deb.nodesource.com/setup_14.x | bash -'
+                sh 'apt-get install nodejs -y'
+                sh 'npm install --global --force yarn'
+		echo 'Building....'
+		}
+	}
+	stage('Test') {
+		steps {
+			echo 'Testing....'
+			sh 'npm run test'
+			
+		}
         }
         stage('Deploy') {
             steps {
@@ -24,21 +23,23 @@ pipeline {
             }
         }
     }
-
+    
     post {
-        failure {
-            emailext attachLog: true,
-                body: "${currentBuild.currentResult}: Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}",
-                recipientProviders: [developers(), requestor()],
-                to: 'annagrzesiak04@gmail.com',
-                subject: "Build failed in Jenkins ${currentBuild.currentResult}: Job ${env.JOB_NAME}"
-        }
-        success {
-            emailext attachLog: true,
-                body: "${currentBuild.currentResult}: Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}",
-                recipientProviders: [developers(), requestor()],
-                to: 'annagrzesiak04@gmail.com',
-                subject: "Successful build in Jenkins ${currentBuild.currentResult}: Job ${env.JOB_NAME}"
-        }
+    	
+    	success {
+	 emailext attachLog: true, 
+		 body: "${currentBuild.result}: ${BUILD_URL}", 
+		 compressLog: true, 
+		 subject: "Build Notification: ${JOB_NAME}-Build# ${BUILD_NUMBER} ${currentBuild.result}", 
+		 to: 'annagrzesiak04@gmail.com'
+		
+    	}
+    	
+    	failure {
+		emailext attachLog: true,
+			body: "${currentBuild.currentResult}: Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}", 
+			subject: ' Jenkins notification', 
+			to: 'annagrzesiak04@gmail.com'
+    	}
     }
 }
