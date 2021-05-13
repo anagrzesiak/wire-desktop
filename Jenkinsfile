@@ -30,14 +30,14 @@ pipeline {
             emailext attachLog: true,
                 body: "${currentBuild.currentResult}: Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}",
                 recipientProviders: [developers(), requestor()],
-                to: 'anna21toria@gmail.com',
+                to: 'annagrzesiak04@gmail.com',
                 subject: "Build failed in Jenkins ${currentBuild.currentResult}: Job ${env.JOB_NAME}"
         }
         success {
             emailext attachLog: true,
                 body: "${currentBuild.currentResult}: Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}",
                 recipientProviders: [developers(), requestor()],
-                to: 'anna21toria@gmail.com',
+                to: 'annagrzesiak04@gmail.com',
                 subject: "Successful build in Jenkins ${currentBuild.currentResult}: Job ${env.JOB_NAME}"
         }
     }
