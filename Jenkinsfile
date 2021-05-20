@@ -8,6 +8,7 @@ pipeline {
                 sh 'apt-get install nodejs -y'
                 sh 'npm install --global --force yarn'
 		echo 'Building....'
+              sh 'yarn build:linux'
 		}
 	}
 	stage('Test') {
