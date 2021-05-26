@@ -1,46 +1,43 @@
-pipeline {
-    agent any
+pipeline{
+	agent any
+	tools {
+	    nodejs "nodejs"
+	}
+  stages {
+	  
+	  stage('Build'){
 
-    stages {
-        stage('Build') {
-            steps {
-              sh 'curl -sL https://deb.nodesource.com/setup_14.x | bash -'
-                sh 'apt-get install nodejs -y'
-                sh 'npm install --global --force yarn'
-		echo 'Building....'
-              sh 'yarn build:linux'
+            steps{
+                echo "Building..."
+                sh 'npm install'
+                }
+            }
+     
+      stage('Test') {
+          steps {
+              echo 'Testing'
+              sh 'npm run test'
+          }
+      }
+  }
+	post{
+
+		always{
+			echo 'Finished'
+		}
+		failure{
+				echo 'Failure'
+				emailext attachLog: true,
+          body: "${currentBuild.currentResult}: Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}",
+					to: 'annagrzesiak04@gmail.com',
+					subject: "Test failed"
+		}
+		success{
+      echo 'Success'
+      emailext attachLog: true,
+        body: "${currentBuild.currentResult}: Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}",
+        to: 'annagrzesiak04@gmail.com',
+        subject: "Test success"
 		}
 	}
-	stage('Test') {
-		steps {
-			echo 'Testing....'
-			sh 'npm run test'
-
-		}
-        }
-        stage('Deploy') {
-            steps {
-                echo 'Deploying....'
-            }
-        }
-    }
-    
-    post {
-
-    	success {
-	 emailext attachLog: true, 
-		 body: "${currentBuild.result}: ${BUILD_URL}", 
-		 compressLog: true, 
-		 subject: "Build Notification: ${JOB_NAME}-Build# ${BUILD_NUMBER} ${currentBuild.result}", 
-		 to: 'annagrzesiak04@gmail.com'
-
-    	}
-
-    	failure {
-		emailext attachLog: true,
-			body: "${currentBuild.currentResult}: Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}", 
-			subject: ' Jenkins notification', 
-			to: 'annagrzesiak04@gmail.com'
-    	}
-    }
 }
